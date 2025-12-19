@@ -59,6 +59,7 @@ def get_hottest_coldest_days(city):
     formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
     response=requests.get(formed_url)
     if response.status_code !=200:
+        print(response.status_code)
         print("Error: Unable to retrieve data")
         return None
     data = response.json()
