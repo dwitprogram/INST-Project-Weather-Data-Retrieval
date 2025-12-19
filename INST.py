@@ -7,21 +7,14 @@ import requests
 import pandas as pd
 
 API_Key= '752fd0accb0e4626b2362921251912' #API key provided by weatherapi.com
+
 url= f"http://api.weatherapi.com/v1" #base URL for the weather API
-print("Welcome to the weather data retrieval program!") # Welcome message
-print("This program retrieves weather data via API calls")
-print("Please choose a choice from the following options:")
-print("1. Retrieve current weather data for a specific city")
-print("2. Weekly average temperature for a specific city")
-print("3. Hottest and coldest days for a specific city")
-choice=input("Enter your choice (1, 2, or 3): ") #user input for the choice
-city=input("Enter the name of the city: ") #user input for the city name
 def get_current_weather(city):
     """
     
     """
-    url= f"http://api.weatherapi.com/v1/current.json?key={API_Key}&q={city}" #base URL for current weather data
-    response=requests.get(url)
+    formed_url= f"http://api.weatherapi.com/v1/current.json?key={API_Key}&q={city}" #base URL for current weather data
+    response=requests.get(formed_url)
     if response.status_code !=200:
         print("Error: Unable to retrieve data")
         return None
@@ -38,8 +31,8 @@ def get_weekly_avg_temp(city):
     """
     
     """
-    url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}" #base URL for weekly weather data
-    response=requests.get(url)
+    formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
+    response=requests.get(formed_url)
     if response.status_code !=200:
         print("Error: Unable to retrieve data")
         return None
@@ -54,8 +47,8 @@ def get_hottest_coldest_days(city):
     """
     
     """
-    url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
-    response=requests.get(url)
+    formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
+    response=requests.get(formed_url)
     if response.status_code !=200:
         print("Error: Unable to retrieve data")
         return None
@@ -67,4 +60,29 @@ def get_hottest_coldest_days(city):
         "hottest_day": data["forecast"]["forecastday"][0]["day"]["maxtemp_f"],
         "coldest_day": data["forecast"]["forecastday"][0]["day"]["mintemp_f"]
     }
-get_current_weather()
+print("Welcome to the weather data retrieval program!") # Welcome message
+print("This program retrieves weather data via API calls")
+print("Please choose a choice from the following options:")
+print("1. Retrieve current weather data for a specific city")
+print("2. Weekly average temperature for a specific city")
+print("3. Hottest and coldest days for a specific city")
+choice=input("Enter your choice (1, 2, or 3): ") #user input for the choice
+
+city=input("Enter the name of the city: ") #user input for the city name
+
+while choice not in ["1", "2", "3"]:
+    print("Invalid choice. Please enter 1, 2, or 3")
+    choice=input("Enter your choice (1, 2, or 3): ") #user input for the choice1+
+if choice == "1":
+    result=get_current_weather(city)
+    if result:
+        df=pd.DataFrame([result])
+        print(df)
+elif choice == "2":
+    get_weekly_avg_temp(city)
+elif choice == "3":
+    get_hottest_coldest_days(city)
+
+
+
+
