@@ -89,7 +89,7 @@ if choice == "1":
         print(df)
 elif choice == "2":
     result=get_last_7_days(city)
-    if result:
+    if result is not None and not result.empty:
         print(result)
 elif choice == "3":
     get_hottest_coldest_days(city)
