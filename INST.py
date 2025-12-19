@@ -56,7 +56,9 @@ def get_hottest_coldest_days(city):
     """
     
     """
-    formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
+    end_date = date.today() - timedelta(days=1)
+    start_date = end_date - timedelta(days=6)
+    formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}&dt={start_date.isoformat()}&end_dt={end_date.isoformat()}" #base URL for weekly weather data
     response=requests.get(formed_url)
     if response.status_code !=200:
         print(response.status_code)
@@ -93,8 +95,8 @@ elif choice == "2":
     if result is not None and not result.empty:
         print(result)
 elif choice == "3":
-    get_hottest_coldest_days(city)
-
-
-
-
+    result=get_hottest_coldest_days(city)
+    if result is not None and not result.empty:
+        df=pd.DataFrame([result])
+        print(df)
+        
