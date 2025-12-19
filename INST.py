@@ -8,29 +8,63 @@ import pandas as pd
 
 API_Key= '752fd0accb0e4626b2362921251912' #API key provided by weatherapi.com
 url= f"http://api.weatherapi.com/v1" #base URL for the weather API
+print("Welcome to the weather data retrieval program!") # Welcome message
+print("This program retrieves weather data via API calls")
+print("Please choose a choice from the following options:")
+print("1. Retrieve current weather data for a specific city")
+print("2. Weekly average temperature for a specific city")
+print("3. Hottest and coldest days for a specific city")
+choice=input("Enter your choice (1, 2, or 3): ") #user input for the choice
 city=input("Enter the name of the city: ") #user input for the city name
-formed_url= f"{url}/current.json?key={API_Key}&q={city}" #formed URL with the city name and API key
-def get_weather_data(city):
+def get_current_weather(city):
     """
-    Takes API key and city name as input and returns the current weather data for the specified city.
     
-    :param city: User input for the city name.
-    :return: Current weather data for the specified city.
     """
-    response=requests.get(f"{formed_url}")
+    url= f"http://api.weatherapi.com/v1/current.json?key={API_Key}&q={city}" #base URL for current weather data
+    response=requests.get(url)
+    if response.status_code !=200:
+        print("Error: Unable to retrieve data")
+        return None
+    data = response.json()
+    return {
+        "city": data["location"]["name"],
+        "region": data["location"]["region"],
+        "country": data["location"]["country"],
+        "temp_f": data["current"]["temp_f"],
+        "humidity": data["current"]["humidity"],
+        "condition": data["current"]["condition"]["text"]
+    }
+def get_weekly_avg_temp(city):
+    """
     
-    if response.status_code== 200:
-        data = response.json()
-        weather = {
-            "city": data["location"]["name"],
-            "region": data["location"]["region"],
-            "country": data["location"]["country"],
-            "temp_f": data["current"]["temp_f"],
-            "humidity": data["current"]["humidity"],
-            "condition": data["current"]["condition"]["text"]
-            }
-        return weather
-weather_data = get_weather_data(city)
-if weather_data:
-    df = pd.DataFrame([weather_data])
-    print(df)
+    """
+    url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}" #base URL for weekly weather data
+    response=requests.get(url)
+    if response.status_code !=200:
+        print("Error: Unable to retrieve data")
+        return None
+    data = response.json()
+    return {
+        "city": data["location"]["name"],
+        "region": data["location"]["region"],
+        "country": data["location"]["country"],
+        "avg_temp_f": data["forecast"]["forecastday"][0]["day"]["avgtemp_f"]
+    }        
+def get_hottest_coldest_days(city):
+    """
+    
+    """
+    url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
+    response=requests.get(url)
+    if response.status_code !=200:
+        print("Error: Unable to retrieve data")
+        return None
+    data = response.json()
+    return {
+        "city": data["location"]["name"],
+        "region": data["location"]["region"],
+        "country": data["location"]["country"],
+        "hottest_day": data["forecast"]["forecastday"][0]["day"]["maxtemp_f"],
+        "coldest_day": data["forecast"]["forecastday"][0]["day"]["mintemp_f"]
+    }
+get_current_weather()
