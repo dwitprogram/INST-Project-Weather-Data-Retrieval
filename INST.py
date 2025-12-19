@@ -5,6 +5,7 @@ Project: Weather Data Retrieval
 """
 import requests
 import pandas as pd
+from datetime import date, timedelta # Used for date manipulation to get last 7 days of current date
 
 API_Key= '752fd0accb0e4626b2362921251912' #API key provided by weatherapi.com
 
@@ -27,22 +28,30 @@ def get_current_weather(city):
         "humidity": data["current"]["humidity"],
         "condition": data["current"]["condition"]["text"]
     }
-def get_weekly_avg_temp(city):
+def get_last_7_days(city):
     """
     
     """
-    formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}" #base URL for weekly weather data
+    end_date = date.today() - timedelta(days=1)
+    start_date = end_date - timedelta(days=6)
+    formed_url= f"http://api.weatherapi.com/v1/history.json?key={API_Key}&q={city}&dt={start_date.isoformat()}&end_dt={end_date.isoformat()}" #base URL for weekly weather data
     response=requests.get(formed_url)
     if response.status_code !=200:
+        print(response.status_code)
         print("Error: Unable to retrieve data")
         return None
     data = response.json()
-    return {
-        "city": data["location"]["name"],
-        "region": data["location"]["region"],
-        "country": data["location"]["country"],
-        "avg_temp_f": data["forecast"]["forecastday"][0]["day"]["avgtemp_f"]
-    }        
+    rows = []
+    for day in data["forecast"]["forecastday"]:
+        rows.append({
+            "date": day["date"],
+            "max_temp": day["day"]["maxtemp_f"],
+            "min_temp": day["day"]["mintemp_f"],
+            "avg_temp": day["day"]["avgtemp_f"]
+        })
+    df=pd.DataFrame(rows)
+    return df
+    
 def get_hottest_coldest_days(city):
     """
     
@@ -64,7 +73,7 @@ print("Welcome to the weather data retrieval program!") # Welcome message
 print("This program retrieves weather data via API calls")
 print("Please choose a choice from the following options:")
 print("1. Retrieve current weather data for a specific city")
-print("2. Weekly average temperature for a specific city")
+print("2. Retrieve last 7 days of weather data for a specific city")
 print("3. Hottest and coldest days for a specific city")
 choice=input("Enter your choice (1, 2, or 3): ") #user input for the choice
 
@@ -79,7 +88,9 @@ if choice == "1":
         df=pd.DataFrame([result])
         print(df)
 elif choice == "2":
-    get_weekly_avg_temp(city)
+    result=get_last_7_days(city)
+    if result:
+        print(result)
 elif choice == "3":
     get_hottest_coldest_days(city)
 
